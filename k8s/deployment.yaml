@@ -15,5 +15,6 @@ spec:
       containers:
         - name: load-balanced-app
           image: pvgaurav/load-balanced-app:latest
+          replicas: 5 # Increase the number of replicas
           ports:
             - containerPort: 3000
