@@ -2,8 +2,10 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: load-balanced-app
+  labels:
+    app: load-balanced-app
 spec:
-  replicas: 3
+  replicas: 5 # You can adjust the number of replicas as needed
   selector:
     matchLabels:
       app: load-balanced-app
@@ -14,7 +16,25 @@ spec:
     spec:
       containers:
         - name: load-balanced-app
-          image: pvgaurav/load-balanced-app:latest
-          replicas: 5 # Increase the number of replicas
+          image: <your-dockerhub-username>/load-balanced-app:latest
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20

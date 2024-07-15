@@ -17,6 +17,17 @@ app.get("/", (req, res) => {
   ); // Simulate a delay between 0 to 1000ms
 });
 
+// Health check endpoint for readiness and liveness probes
+app.get("/healthz", (req, res) => {
+  res.send("OK");
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something went wrong!");
+});
+
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
 });
