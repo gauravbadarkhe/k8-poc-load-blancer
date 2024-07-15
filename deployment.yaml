@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: load-balanced-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: load-balanced-app
+  template:
+    metadata:
+      labels:
+        app: load-balanced-app
+    spec:
+      containers:
+        - name: load-balanced-app
+          image: pvgaurav/load-balanced-app:latest
+          ports:
+            - containerPort: 3000
