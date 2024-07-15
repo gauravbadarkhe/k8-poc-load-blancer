@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Deploy Docker Image to Linode Kubernetes
 
 on:
   push:
@@ -27,3 +27,26 @@ jobs:
         with:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/load-balanced-app:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: "latest"
+
+      - name: Authenticate with Linode Kubernetes
+        run: |
+          echo ${{ secrets.LINODE_K8S_TOKEN }} | kubectl config set-credentials linode --token=$(cat -)
+          kubectl config set-cluster linode-cluster --server=${{ secrets.LINODE_K8S_API_URL }} --insecure-skip-tls-verify=true
+          kubectl config set-context linode --cluster=linode-cluster --user=linode
+          kubectl config use-context linode
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f k8s/
