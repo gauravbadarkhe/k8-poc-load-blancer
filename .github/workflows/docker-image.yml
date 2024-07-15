@@ -41,31 +41,11 @@ jobs:
         with:
           version: "latest"
 
-      - name: Authenticate with Linode Kubernetes
-        env:
-          K8S_API_URL: ${{ secrets.LINODE_K8S_API_URL }}
-          K8S_TOKEN: ${{ secrets.LINODE_K8S_TOKEN }}
-        run: |
-          mkdir -p ~/.kube
-          echo "
-          apiVersion: v1
-          kind: Config
-          clusters:
-          - cluster:
-              server: ${K8S_API_URL}
-              insecure-skip-tls-verify: true
-            name: linode-cluster
-          contexts:
-          - context:
-              cluster: linode-cluster
-              user: linode-user
-            name: linode-context
-          current-context: linode-context
-          users:
-          - name: linode-user
-            user:
-              token: ${K8S_TOKEN}
-          " > ~/.kube/config
+      - name: Create kubeconfig file
+        run: echo "${{ secrets.KUBECONFIG_FILE }}" > $HOME/.kube/config
+
+      - name: Set KUBECONFIG environment variable
+        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
 
       - name: Apply Kubernetes manifests
         run: kubectl apply -f k8s/
